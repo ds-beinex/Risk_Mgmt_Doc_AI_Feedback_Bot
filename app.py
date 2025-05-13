@@ -9,6 +9,7 @@ from PIL import Image
 from datetime import datetime
 import uuid
 import csv
+import json
 
 # Policy module imports
 from langchain.chat_models import ChatOpenAI
@@ -64,9 +65,13 @@ db_config = {
     "database": DB_NAME
 }
 
-
 scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name(r"gsheets-project-458606-526d0637c909.json",scope)
+# Convert st.secrets to a JSON-style dict
+creds_dict = dict(st.secrets["gsheets"])
+# Convert to actual JSON string and parse it
+creds_json = json.loads(json.dumps(creds_dict))
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_json,scope)
 client = gspread.authorize(creds)
 sheet = client.open("Streamlit_Chatbot_Logs").sheet1  
 
